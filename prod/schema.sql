@@ -2296,6 +2296,28 @@ $$;
 ALTER FUNCTION "public"."set_task_status"("item_id" "uuid", "status" "public"."task_status") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."set_tour_progress"("p_step" integer DEFAULT NULL::integer, "p_done" boolean DEFAULT false) RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+declare
+  v_uid uuid := private.require_member();
+begin
+  update public.members m
+  set tour_step = case when p_done then null else p_step end,
+      tour_done_at = case when p_done then now() else m.tour_done_at end
+  where m.id = v_uid;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."set_tour_progress"("p_step" integer, "p_done" boolean) OWNER TO "postgres";
+
+
+COMMENT ON FUNCTION "public"."set_tour_progress"("p_step" integer, "p_done" boolean) IS 'Saves the caller''s own guided-tour progress: a step to resume at, or done (sets tour_done_at, clears the step).';
+
+
+
 CREATE OR REPLACE FUNCTION "public"."unaccent_text"("value" "text") RETURNS "text"
     LANGUAGE "sql" IMMUTABLE STRICT PARALLEL SAFE
     SET "search_path" TO ''
@@ -2512,7 +2534,10 @@ CREATE TABLE IF NOT EXISTS "public"."members" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "avatar_url" "text",
     "last_seen_at" timestamp with time zone,
-    CONSTRAINT "members_role_check" CHECK (("role" = ANY (ARRAY['admin'::"text", 'member'::"text"])))
+    "tour_step" integer,
+    "tour_done_at" timestamp with time zone,
+    CONSTRAINT "members_role_check" CHECK (("role" = ANY (ARRAY['admin'::"text", 'member'::"text"]))),
+    CONSTRAINT "members_tour_step_check" CHECK ((("tour_step" IS NULL) OR ("tour_step" >= 0)))
 );
 
 
@@ -2524,6 +2549,14 @@ COMMENT ON TABLE "public"."members" IS 'Studio members. RLS on every table check
 
 
 COMMENT ON COLUMN "public"."members"."last_seen_at" IS 'The "Since you last looked" bookmark. Updated when Home is viewed.';
+
+
+
+COMMENT ON COLUMN "public"."members"."tour_step" IS 'Guided tour: the step to resume at. Null when not started or finished.';
+
+
+
+COMMENT ON COLUMN "public"."members"."tour_done_at" IS 'Guided tour: when the member finished or skipped it. Null means it has not been completed.';
 
 
 
@@ -3877,6 +3910,11 @@ GRANT UPDATE("due_date") ON TABLE "public"."tasks" TO "authenticated";
 
 REVOKE ALL ON FUNCTION "public"."set_task_status"("item_id" "uuid", "status" "public"."task_status") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."set_task_status"("item_id" "uuid", "status" "public"."task_status") TO "authenticated";
+
+
+
+REVOKE ALL ON FUNCTION "public"."set_tour_progress"("p_step" integer, "p_done" boolean) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."set_tour_progress"("p_step" integer, "p_done" boolean) TO "authenticated";
 
 
 

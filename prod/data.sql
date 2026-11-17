@@ -4,7 +4,7 @@ SET session_replication_role = replica;
 -- PostgreSQL database dump
 --
 
--- \restrict 1tJbiwH8pzXlzrVPLRSTwADPujdJhkINzdKBbVGG93Egek7ET76dJhNHGTp9T7K
+-- \restrict hXGNFejgIzFukW1Yt1HKQiuHmhYenybCBgD9VQHr74R3lS5sCH8bq8lrRCVgkaD
 
 -- Dumped from database version 17.11
 -- Dumped by pg_dump version 17.11
@@ -42,7 +42,7 @@ COPY "auth"."custom_oauth_providers" ("id", "provider_type", "identifier", "name
 --
 
 COPY "auth"."users" ("instance_id", "id", "aud", "role", "email", "encrypted_password", "email_confirmed_at", "invited_at", "confirmation_token", "confirmation_sent_at", "recovery_token", "recovery_sent_at", "email_change_token_new", "email_change", "email_change_sent_at", "last_sign_in_at", "raw_app_meta_data", "raw_user_meta_data", "is_super_admin", "created_at", "updated_at", "phone", "phone_confirmed_at", "phone_change", "phone_change_token", "phone_change_sent_at", "email_change_token_current", "email_change_confirm_status", "banned_until", "reauthentication_token", "reauthentication_sent_at", "is_sso_user", "deleted_at", "is_anonymous") FROM stdin;
-00000000-0000-0000-0000-000000000000	10698111-1a49-4321-a796-48d8d9685f09	authenticated	authenticated	jgonzar09@gmail.com	\N	2026-10-23 03:27:56.97649+00	\N		\N		\N			\N	2026-11-16 00:31:43.181123+00	{"provider": "github", "providers": ["github"]}	{"iss": "https://api.github.com", "sub": "76130775", "name": "Ángel González", "email": "jgonzar09@gmail.com", "full_name": "Ángel González", "user_name": "jgonzar", "avatar_url": "https://avatars.githubusercontent.com/u/76130775?v=4", "provider_id": "76130775", "email_verified": true, "phone_verified": false, "preferred_username": "jgonzar"}	\N	2026-10-23 03:27:56.957826+00	2026-11-16 02:28:06.330818+00	\N	\N			\N		0	\N		\N	f	\N	f
+00000000-0000-0000-0000-000000000000	10698111-1a49-4321-a796-48d8d9685f09	authenticated	authenticated	jgonzar09@gmail.com	\N	2026-10-23 03:27:56.97649+00	\N		\N		\N			\N	2026-11-16 00:31:43.181123+00	{"provider": "github", "providers": ["github"]}	{"iss": "https://api.github.com", "sub": "76130775", "name": "Ángel González", "email": "jgonzar09@gmail.com", "full_name": "Ángel González", "user_name": "jgonzar", "avatar_url": "https://avatars.githubusercontent.com/u/76130775?v=4", "provider_id": "76130775", "email_verified": true, "phone_verified": false, "preferred_username": "jgonzar"}	\N	2026-10-23 03:27:56.957826+00	2026-11-17 16:10:49.349056+00	\N	\N			\N		0	\N		\N	f	\N	f
 00000000-0000-0000-0000-000000000000	00d4f221-c356-4386-8e20-f6eb722b7680	authenticated	authenticated	gabdiaz.pr@gmail.com	\N	2026-10-24 18:33:33.543103+00	\N		\N		\N			\N	2026-10-24 18:33:34.322411+00	{"provider": "github", "providers": ["github"]}	{"iss": "https://api.github.com", "sub": "229654380", "email": "gabdiaz.pr@gmail.com", "user_name": "Gabz021", "avatar_url": "https://avatars.githubusercontent.com/u/229654380?v=4", "provider_id": "229654380", "email_verified": true, "phone_verified": false, "preferred_username": "Gabz021"}	\N	2026-10-24 18:33:33.492776+00	2026-10-24 19:33:34.397667+00	\N	\N			\N		0	\N		\N	f	\N	f
 \.
 
@@ -181,9 +181,9 @@ COPY "auth"."webauthn_credentials" ("id", "user_id", "credential_id", "public_ke
 -- Data for Name: members; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY "public"."members" ("id", "github_login", "display_name", "role", "created_at", "avatar_url", "last_seen_at") FROM stdin;
-00d4f221-c356-4386-8e20-f6eb722b7680	Gabz021	Gabriel Diaz	member	2026-10-24 19:34:19.654267+00	\N	\N
-10698111-1a49-4321-a796-48d8d9685f09	jgonzar	Ángel González	admin	2026-10-23 04:13:29.604316+00	\N	2026-11-16 00:33:34.450025+00
+COPY "public"."members" ("id", "github_login", "display_name", "role", "created_at", "avatar_url", "last_seen_at", "tour_step", "tour_done_at") FROM stdin;
+00d4f221-c356-4386-8e20-f6eb722b7680	Gabz021	Gabriel Diaz	member	2026-10-24 19:34:19.654267+00	\N	\N	\N	\N
+10698111-1a49-4321-a796-48d8d9685f09	jgonzar	Ángel González	admin	2026-10-23 04:13:29.604316+00	\N	2026-11-17 16:11:03.264905+00	\N	\N
 \.
 
 
@@ -378,7 +378,7 @@ COPY "storage"."vector_indexes" ("id", "name", "bucket_id", "data_type", "dimens
 -- Name: refresh_tokens_id_seq; Type: SEQUENCE SET; Schema: auth; Owner: supabase_auth_admin
 --
 
-SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 10, true);
+SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 13, true);
 
 
 --
@@ -399,6 +399,6 @@ SELECT pg_catalog.setval('"public"."items_number_seq"', 4, true);
 -- PostgreSQL database dump complete
 --
 
--- \unrestrict 1tJbiwH8pzXlzrVPLRSTwADPujdJhkINzdKBbVGG93Egek7ET76dJhNHGTp9T7K
+-- \unrestrict hXGNFejgIzFukW1Yt1HKQiuHmhYenybCBgD9VQHr74R3lS5sCH8bq8lrRCVgkaD
 
 RESET ALL;
