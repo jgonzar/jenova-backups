@@ -537,6 +537,7 @@ CREATE TABLE IF NOT EXISTS "public"."items" (
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "archived_at" timestamp with time zone,
     "search" "tsvector" GENERATED ALWAYS AS ("public"."search_vector"("title", "content_md")) STORED,
+    "client_id" "uuid",
     CONSTRAINT "items_version_check" CHECK (("version" > 0))
 );
 
@@ -1121,22 +1122,41 @@ $$;
 ALTER FUNCTION "public"."break_into_tasks"("idea_id" "uuid", "tasks" "jsonb") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."capture_item"("kind" "public"."item_kind", "title" "text", "space_id" "uuid" DEFAULT NULL::"uuid", "content_md" "text" DEFAULT NULL::"text", "content_json" "jsonb" DEFAULT NULL::"jsonb") RETURNS "public"."items"
+CREATE OR REPLACE FUNCTION "public"."capture_item"("kind" "public"."item_kind", "title" "text", "space_id" "uuid" DEFAULT NULL::"uuid", "content_md" "text" DEFAULT NULL::"text", "content_json" "jsonb" DEFAULT NULL::"jsonb", "client_id" "uuid" DEFAULT NULL::"uuid") RETURNS "public"."items"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
     AS $$
+#variable_conflict use_column
 declare
   v_uid uuid := private.require_member();
   v_item public.items;
 begin
+  if capture_item.client_id is not null then
+    select i.* into v_item
+    from public.items i
+    where i.created_by = v_uid and i.client_id = capture_item.client_id;
+    if v_item.id is not null then
+      return v_item;
+    end if;
+  end if;
+
   perform private.require_open_space(capture_item.space_id);
 
-  insert into public.items (kind, title, space_id, content_md, content_json, created_by, updated_by, created_via)
+  insert into public.items (kind, title, space_id, content_md, content_json, created_by, updated_by, created_via, client_id)
   values (
     capture_item.kind, btrim(capture_item.title), capture_item.space_id,
-    coalesce(capture_item.content_md, ''), capture_item.content_json, v_uid, v_uid, 'app'
+    coalesce(capture_item.content_md, ''), capture_item.content_json, v_uid, v_uid, 'app', capture_item.client_id
   )
+  on conflict (created_by, client_id) where client_id is not null do nothing
   returning * into v_item;
+
+  if v_item.id is null then
+    -- Lost a race with another tab's identical call: return the winner, write nothing else.
+    select i.* into v_item
+    from public.items i
+    where i.created_by = v_uid and i.client_id = capture_item.client_id;
+    return v_item;
+  end if;
 
   perform private.insert_kind_row(v_item);
   perform private.log_activity('created', v_item.id);
@@ -1145,10 +1165,10 @@ end;
 $$;
 
 
-ALTER FUNCTION "public"."capture_item"("kind" "public"."item_kind", "title" "text", "space_id" "uuid", "content_md" "text", "content_json" "jsonb") OWNER TO "postgres";
+ALTER FUNCTION "public"."capture_item"("kind" "public"."item_kind", "title" "text", "space_id" "uuid", "content_md" "text", "content_json" "jsonb", "client_id" "uuid") OWNER TO "postgres";
 
 
-COMMENT ON FUNCTION "public"."capture_item"("kind" "public"."item_kind", "title" "text", "space_id" "uuid", "content_md" "text", "content_json" "jsonb") IS 'Flow 1. No space = the inbox. Ideas start without a status in the inbox, To discuss in a space.';
+COMMENT ON FUNCTION "public"."capture_item"("kind" "public"."item_kind", "title" "text", "space_id" "uuid", "content_md" "text", "content_json" "jsonb", "client_id" "uuid") IS 'Flow 1. No space = the inbox. Ideas start without a status in the inbox, To discuss in a space. client_id (made on the phone) makes a retry return the first note.';
 
 
 
@@ -2794,6 +2814,10 @@ CREATE INDEX "item_versions_item_idx" ON "public"."item_versions" USING "btree" 
 
 
 
+CREATE UNIQUE INDEX "items_client_id_uidx" ON "public"."items" USING "btree" ("created_by", "client_id") WHERE ("client_id" IS NOT NULL);
+
+
+
 CREATE INDEX "items_search_idx" ON "public"."items" USING "gin" ("search");
 
 
@@ -3764,8 +3788,8 @@ GRANT ALL ON FUNCTION "public"."break_into_tasks"("idea_id" "uuid", "tasks" "jso
 
 
 
-REVOKE ALL ON FUNCTION "public"."capture_item"("kind" "public"."item_kind", "title" "text", "space_id" "uuid", "content_md" "text", "content_json" "jsonb") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."capture_item"("kind" "public"."item_kind", "title" "text", "space_id" "uuid", "content_md" "text", "content_json" "jsonb") TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."capture_item"("kind" "public"."item_kind", "title" "text", "space_id" "uuid", "content_md" "text", "content_json" "jsonb", "client_id" "uuid") FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."capture_item"("kind" "public"."item_kind", "title" "text", "space_id" "uuid", "content_md" "text", "content_json" "jsonb", "client_id" "uuid") TO "authenticated";
 
 
 

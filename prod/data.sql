@@ -4,7 +4,7 @@ SET session_replication_role = replica;
 -- PostgreSQL database dump
 --
 
--- \restrict hXGNFejgIzFukW1Yt1HKQiuHmhYenybCBgD9VQHr74R3lS5sCH8bq8lrRCVgkaD
+-- \restrict HTr1eUAnqQuv7aHEU1alfalRu7LVKgl61NDiYzR22D4JQxtdrQFTVOj0p8AtIXz
 
 -- Dumped from database version 17.11
 -- Dumped by pg_dump version 17.11
@@ -200,11 +200,11 @@ COPY "public"."spaces" ("id", "name", "slug", "pitch_item_id", "pitch_kind", "co
 -- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY "public"."items" ("id", "number", "kind", "title", "space_id", "content_json", "content_md", "version", "created_by", "created_via", "created_at", "updated_by", "updated_at", "archived_at") FROM stdin;
-debcf642-6d60-46e8-9404-d5a8d9ae700e	1	doc	Studio facts	9e2fb9d0-d2e8-44ac-bd20-131d529ce445	\N		1	\N	app	2026-10-24 20:59:37.997634+00	\N	2026-10-24 20:59:37.997634+00	\N
-9d11f6b0-8859-4ca5-a587-dd4b2e725f4a	2	task	test task	9e2fb9d0-d2e8-44ac-bd20-131d529ce445	\N		1	10698111-1a49-4321-a796-48d8d9685f09	app	2026-11-15 22:56:24.854059+00	10698111-1a49-4321-a796-48d8d9685f09	2026-11-15 22:56:24.854059+00	\N
-744be59a-1fa0-4201-bcbf-867615d6ba6c	3	idea	fewefij	\N	\N	ierhoifrih	1	10698111-1a49-4321-a796-48d8d9685f09	app	2026-11-15 23:35:19.266266+00	10698111-1a49-4321-a796-48d8d9685f09	2026-11-15 23:35:19.266266+00	\N
-f66f8acf-ae1a-4fd9-9947-2c7588db7762	4	task	Jel	\N	\N		1	10698111-1a49-4321-a796-48d8d9685f09	app	2026-11-16 00:32:01.278469+00	10698111-1a49-4321-a796-48d8d9685f09	2026-11-16 00:32:01.278469+00	\N
+COPY "public"."items" ("id", "number", "kind", "title", "space_id", "content_json", "content_md", "version", "created_by", "created_via", "created_at", "updated_by", "updated_at", "archived_at", "client_id") FROM stdin;
+debcf642-6d60-46e8-9404-d5a8d9ae700e	1	doc	Studio facts	9e2fb9d0-d2e8-44ac-bd20-131d529ce445	\N		1	\N	app	2026-10-24 20:59:37.997634+00	\N	2026-10-24 20:59:37.997634+00	\N	\N
+9d11f6b0-8859-4ca5-a587-dd4b2e725f4a	2	task	test task	9e2fb9d0-d2e8-44ac-bd20-131d529ce445	\N		1	10698111-1a49-4321-a796-48d8d9685f09	app	2026-11-15 22:56:24.854059+00	10698111-1a49-4321-a796-48d8d9685f09	2026-11-15 22:56:24.854059+00	\N	\N
+744be59a-1fa0-4201-bcbf-867615d6ba6c	3	idea	fewefij	\N	\N	ierhoifrih	1	10698111-1a49-4321-a796-48d8d9685f09	app	2026-11-15 23:35:19.266266+00	10698111-1a49-4321-a796-48d8d9685f09	2026-11-15 23:35:19.266266+00	\N	\N
+f66f8acf-ae1a-4fd9-9947-2c7588db7762	4	task	Jel	\N	\N		1	10698111-1a49-4321-a796-48d8d9685f09	app	2026-11-16 00:32:01.278469+00	10698111-1a49-4321-a796-48d8d9685f09	2026-11-16 00:32:01.278469+00	\N	\N
 \.
 
 
@@ -399,6 +399,6 @@ SELECT pg_catalog.setval('"public"."items_number_seq"', 4, true);
 -- PostgreSQL database dump complete
 --
 
--- \unrestrict hXGNFejgIzFukW1Yt1HKQiuHmhYenybCBgD9VQHr74R3lS5sCH8bq8lrRCVgkaD
+-- \unrestrict HTr1eUAnqQuv7aHEU1alfalRu7LVKgl61NDiYzR22D4JQxtdrQFTVOj0p8AtIXz
 
 RESET ALL;
